@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netlify Linux Shell</title>
+    <style>
+        body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; }
+        #output { white-space: pre-wrap; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        input { background: transparent; border: none; color: #fff; width: 80%; outline: none; font-size: 16px; }
+        .prompt { color: #ff00ff; }
+    </style>
+</head>
+<body>
+    <div id="output">مرحباً بك في نظام Netlify Linux.. أدخل أوامرك أدناه:</div>
+    <span class="prompt">netlify@linux:~$ </span>
+    <input type="text" id="cmd" autofocus onkeypress="if(event.key === 'Enter') runCmd()">
+
+    <script>
+        async function runCmd() {
+            const cmdInput = document.getElementById('cmd');
+            const output = document.getElementById('output');
+            const cmd = cmdInput.value;
+            
+            output.innerHTML += `\n<span style="color:#fff">${cmd}</span>\n`;
+            cmdInput.value = '';
+
+            try {
+                const response = await fetch(`/.netlify/functions/shell?run=${encodeURIComponent(cmd)}`);
+                const data = await response.text();
+                output.innerHTML += data + "\n";
+                window.scrollTo(0, document.body.scrollHeight);
+            } catch (e) {
+                output.innerHTML += "Error connecting to function.\n";
+            }
+        }
+    </script>
+</body>
+</html>
