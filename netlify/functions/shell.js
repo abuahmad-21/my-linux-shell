@@ -1,30 +1,33 @@
-import os
-import subprocess
+const { execSync } = require('child_process');
 
-def list_top_tools():
-    # قائمة بأقوى 10 أدوات في كالي وكيفية استدعائها
-    tools = {
-        "1. Nmap": "فحص الشبكات والمنافذ المفتوحة",
-        "2. Metasploit": "إطار عمل لاختبار الاختراق (صعب تشغيله كاملاً على نيتلفاي)",
-        "3. Burp Suite": "فحص ثغرات تطبيقات الويب",
-        "4. John the Ripper": "كسر كلمات المرور",
-        "5. Wireshark": "تحليل حزم البيانات",
-        "6. Hydra": "الهجوم العنيف (Brute Force) على البروتوكولات",
-        "7. Sqlmap": "اختبار ثغرات SQL Injection",
-        "8. Aircrack-ng": "اختبار اختراق شبكات الواي فاي",
-        "9. Sherlock": "البحث عن اليوزر في 3000+ موقع (الأداة التي طلبتها)",
-        "10. Social Engineering Toolkit (SET)": "أدوات الهندسة الاجتماعية"
+// التعديل الأساسي هنا باستخدام export بدلاً من module.exports ليتوافق مع البيئة الجديدة
+export const handler = async (event) => {
+    const command = event.queryStringParameters.run;
+    
+    // التحقق من وجود أمر
+    if (!command) {
+        return { 
+            statusCode: 400, 
+            body: "خطأ: لم يتم إرسال أي أمر لتنفيذه." 
+        };
     }
-    return tools
 
-def run_sherlock(username):
-    # محاكاة لعمل أداة Sherlock (تحتاج تثبيت الأداة كـ Binary لتعمل فعلياً)
-    print(f"[*] جاري البحث عن المستخدم: {username} في أكثر من 3000 موقع...")
-    # هنا يتم استدعاء أمر التشغيل إذا كانت الأداة مرفوعة مع الكود
-    # command = f"python3 sherlock {username}"
-    # os.system(command)
+    try {
+        // تنفيذ الأمر وتحويل المخرجات لنص
+        // 2>&1 تضمن ظهور أخطاء اللينكس في الشاشة السوداء عندك
+        const output = execSync(`${command} 2>&1`).toString();
 
-if __name__ == "__main__":
-    print("--- Kali Linux Top Tools Manager ---")
-    for tool, desc in list_top_tools().items():
-        print(f"{tool}: {desc}")
+        return {
+            statusCode: 200,
+            headers: { "Content-Type": "text/plain; charset=utf-8" },
+            body: output || "تم التنفيذ بنجاح (لا توجد مخرجات نصية)."
+        };
+    } catch (error) {
+        // في حال فشل الأمر (مثل أمر خاطئ أو أداة غير موجودة)
+        return {
+            statusCode: 200,
+            headers: { "Content-Type": "text/plain; charset=utf-8" },
+            body: error.stdout ? error.stdout.toString() : error.message
+        };
+    }
+};
