@@ -1,11 +1,11 @@
 {
-  "name": "Claude Code on iPhone (Codespaces)",
+  "name": "Claude Code iPhone Codespace",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
   "remoteUser": "node",
   "hostRequirements": {
     "cpus": 2
   },
-  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && claude --version",
+  "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash && /home/node/.local/bin/claude --version",
   "customizations": {
     "vscode": {
       "settings": {
